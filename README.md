@@ -94,7 +94,7 @@ The sample code use Pytorch to reshape the output from tensorrt. You can just re
 
 Try converting the the engine using FP32 and FP16 mode and compare the speed difference.
 
-You can also refer the NVIDIA sample [code](https://github.com/NVIDIA/TensorRT/tree/main/samples/python) and [guide](https://docs.nvidia.com/deeplearning/tensorrt/sample-support-guide/index.html).
+You can also refer to NVIDIA sample [code](https://github.com/NVIDIA/TensorRT/tree/main/samples/python) and [guide](https://docs.nvidia.com/deeplearning/tensorrt/sample-support-guide/index.html).
  
 ## VI. Combining the Functions
 
