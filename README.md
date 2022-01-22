@@ -1,6 +1,6 @@
 # Lab 8: Vision Lab
 
-Welcome to the Vision Lab. This is an application-oriented lab that aims to give you some experiences in solving practical vision problems. This lab has 4 parts. The first 3 parts are quite straightforward. The last part is a bit involved. Please work in teams to complete this lab and make good use of Google. A lot of people have implemented this. If you have some problem, it's almost-always-already answered on some developer community.
+Welcome to the Vision Lab. This lab aims to give you some experiences in solving practical vision problems. The first 3 parts in this lab are quite straightforward. The last part is a bit involved. Please work in teams to complete this lab and make good use of Google. A lot of people have implemented this. If you have some problem, it's almost-always-already answered on some developer community.
 
 ## I. Learning Goals
 
