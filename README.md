@@ -66,7 +66,7 @@ Trying converting the the engine using FP32 and FP16 mode and compare the speed 
 
 ## VI. Combining the Functions
 
-In the final part, we will write another ROS node that subscribes to `/rgb_img` channel for an image. Run the lane detection and object detection on the image. Then use the center point of the botton bounding box edge from the object detection to calcuate the distance to the object. Please note that the image resolution should be 960x540 and your detection resolution is smaller.
+In the final part, we will write another ROS node that subscribes to `/rgb_img` channel for an image. Run the lane detection and object detection on the image. Then use the center point of the botton bounding box edge from object detection to calcuate the distance to the object. Please note that the image resolution should be 960x540 and your detection resolution is smaller.
 
 Publish the result image with lane detection and object detection indicators to the `/det_img` channel. Publish the distance to detections to the `/det_distance` channel.
 
