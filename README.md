@@ -1,6 +1,6 @@
 # Lab 8: Vision Lab
 
-Welcome to the Vision Lab. This is an application-oriented lab that aims to give you some experiences in solving practical vision problems. This lab has 4 parts. The first 3 parts are quite straightforward. The last part is a bit involved. Please work in teams to complete this lab and make good use of Google. A lot of people have implemented this. If you have some problem, it's almost always already al(n)swered on some developer community.
+Welcome to the Vision Lab. This is an application-oriented lab that aims to give you some experiences in solving practical vision problems. This lab has 4 parts. The first 3 parts are quite straightforward. The last part is a bit involved. Please work in teams to complete this lab and make good use of Google. A lot of people have implemented this. If you have some problem, it's almost-always-already answered on some developer community.
 
 ## I. Learning Goals
 
@@ -85,6 +85,8 @@ In the sample code above, the engine is never saved. You can see [this](https://
 explicit_batch = 1 << (int)(trt.NetworkDefinitionCreationFlag.EXPLICIT_BATCH)
 network = builder.create_network(explicit_batch)
 ```
+
+The sample code use Pytorch to reshape the output from tensorrt. You can just reshape it to (5, 5, 10) with numpy, so that you don't need to import a huge torch in your docker.
 
 Trying converting the the engine using FP32 and FP16 mode and compare the speed difference.
 
