@@ -69,7 +69,7 @@ You can install matplotlib with `sudo apt-get install python3-matplotlib`.
 #### Install pycuda and set up TensorRT
 If you Jetson doesn't have pycuda, follow [this](https://docs.donkeycar.com/guide/robot_sbc/tensorrt_jetson_nano/) to set up TensorRT and install pycuda.
 
-After you are done with training the network, convert it into a TensorRT engine on the Jetson NX. To do this, first convert the model from PyTorch into ONNX and then to TensorRT. Then write a function takes in an image, preprocess it, run with the model, post-process and return the results. Tutorial and sample code can be found [here](https://learnopencv.com/how-to-convert-a-model-from-pytorch-to-tensorrt-and-speed-up-inference/).
+After you are done with training the network, convert it into a TensorRT engine on the Jetson NX. To do this, first convert the model from PyTorch into ONNX and then to TensorRT. Then write a function takes in an image, preprocess it, run with the model, post-process and return the results. You can use this [tutorial](https://learnopencv.com/how-to-convert-a-model-from-pytorch-to-tensorrt-and-speed-up-inference/) and sample [code](https://github.com/spmallick/learnopencv/tree/master/PyTorch-ONNX-TensorRT).
 
 Trying converting the the engine using FP32 and FP16 mode and compare the speed difference.
 
