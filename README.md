@@ -61,6 +61,7 @@ The next 'TODO' are some hyperparameters: batchsize, learning rate and epoch. La
 If you are familiar with network training, you can choose any network architecture you like and train it with our dataset. Maybe try some newly published networks that are transformer based? You need to make sure that it can be successfully deployed with TensorRT. Not all layers are supported by TensorRT. 
 
 ### TensorRT Deployment
+You should probably do the conversion part outside docker.
 
 #### Install Pytorch
 If your Jetson doesn't have Pytorch, follow [this](https://forums.developer.nvidia.com/t/pytorch-for-jetson-version-1-10-now-available/72048) to install Pytorch.
