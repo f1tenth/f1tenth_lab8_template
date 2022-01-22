@@ -65,6 +65,8 @@ If you are familiar with network training, you can choose any network architectu
 ### TensorRT Deployment
 You should probably do the conversion part outside docker.
 
+After you are done with training the network, convert it into a TensorRT engine on the Jetson NX. To do this, first convert the model from PyTorch into ONNX and then to TensorRT. Then write a function takes in an image, preprocess it, run with the model, post-process and return the results. You can use this [tutorial](https://learnopencv.com/how-to-convert-a-model-from-pytorch-to-tensorrt-and-speed-up-inference/) and sample [code](https://github.com/spmallick/learnopencv/tree/master/PyTorch-ONNX-TensorRT).
+
 #### Install Pytorch
 If your Jetson doesn't have Pytorch, follow [this](https://forums.developer.nvidia.com/t/pytorch-for-jetson-version-1-10-now-available/72048) to install Pytorch.
 You can install matplotlib with `sudo apt-get install python3-matplotlib`.
@@ -78,7 +80,7 @@ pip3 install onnx
 #### Install pycuda and set up TensorRT
 If your Jetson doesn't have pycuda, follow [this](https://docs.donkeycar.com/guide/robot_sbc/tensorrt_jetson_nano/) to set up TensorRT and install pycuda.
 
-After you are done with training the network, convert it into a TensorRT engine on the Jetson NX. To do this, first convert the model from PyTorch into ONNX and then to TensorRT. Then write a function takes in an image, preprocess it, run with the model, post-process and return the results. You can use this [tutorial](https://learnopencv.com/how-to-convert-a-model-from-pytorch-to-tensorrt-and-speed-up-inference/) and sample [code](https://github.com/spmallick/learnopencv/tree/master/PyTorch-ONNX-TensorRT). 
+#### Implementation Tips
 
 In the sample code above, the engine is never saved. You can see [this](https://github.com/NVIDIA-AI-IOT/torch2trt/issues/233) on how to save and read engine file. Also, due to version different, we need to replace this [line](https://github.com/spmallick/learnopencv/blob/a18fa4e1a255f58700b3c4687e425cabd58c41bf/PyTorch-ONNX-TensorRT/trt_inference.py#L17) by the following two lines.
 ```
@@ -88,8 +90,10 @@ network = builder.create_network(explicit_batch)
 
 The sample code use Pytorch to reshape the output from tensorrt. You can just reshape it to (5, 5, 10) with numpy, so that you don't need to import a huge torch in your docker.
 
-Trying converting the the engine using FP32 and FP16 mode and compare the speed difference.
+Try converting the the engine using FP32 and FP16 mode and compare the speed difference.
 
+You can also refer the NVIDIA sample [code](https://github.com/NVIDIA/TensorRT/tree/main/samples/python) and [guide](https://docs.nvidia.com/deeplearning/tensorrt/sample-support-guide/index.html).
+ 
 ## VI. Combining the Functions
 
 In the final part, we will write another ROS node that subscribes to `/rgb_img` channel for an image. Run the lane detection and object detection on the image. Then use the center point of the botton bounding box edge from object detection to calcuate the distance to the object. Please note that the image resolution should be 960x540 and your detection resolution is smaller.
