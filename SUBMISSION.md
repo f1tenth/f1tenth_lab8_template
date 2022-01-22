@@ -6,6 +6,9 @@
 ## For calculation of camera height, did you use the far image or the near image and why?
 (FILL ME IN)
 
+## The x, y distance of the unknown cones?
+(FILL ME IN)
+
 ## Is FP16 faster? Why?
 (FILL ME IN)
 
