@@ -54,7 +54,7 @@ There are only a few positions where marked 'TODO'. First is the network layer c
 
 The next 'TODO' are some hyperparameters: batchsize, learning rate and epoch. Large batchsizes make you learn faster, but lower batchsizes give more randomness and can prevent some overfitting. Large learning rate make you learn faster but maybe unstable and bounce around the optimal point. Epoch is just how many times you run with all the dataset. Play around with this values and get a sense of what's suitable. 
 
-Since our detection task is simple and the dataset is not diverse. You should be able to drop the training error below 1000 quite easily and you won't need to pay for a fast GPU to complete this lab. Good enough is fine. We are not grading on the accuracy, as long as it can detect somewhat.
+Since our detection task is simple and the dataset is not diverse. You should be able to drop the training error below 1000 quite easily and you won't need to pay for a fast GPU to complete this lab. We are not grading on the accuracy, as long as it can detect somewhat.
 
 If you are familiar with network training, you can choose any network architecture you like and train it with our dataset. Maybe try some newly published networks that are transformer based? You need to make sure that it can be successfully deployed with TensorRT. Not all layers are supported by TensorRT. 
 
