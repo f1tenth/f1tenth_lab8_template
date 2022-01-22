@@ -60,7 +60,9 @@ There are only a few positions where marked 'TODO'. First is the network layer c
 
 The next 'TODO' are some hyperparameters: batchsize, learning rate and epoch. Large batchsizes make you learn faster, but lower batchsizes give more randomness. Large learning rate make you learn faster but may be unstable (producing NaNs) and bounce around the optimal point. Epoch is just how many times you run with all the dataset. Play around with this values and get a sense of what's suitable. Since our detection task is simple and the dataset is not diverse. You should be able to drop the training error below 1000 quite easily and you won't need to pay for a fast GPU to complete this lab. We are not grading on the accuracy, as long as it can detect somewhat.
 
-If you are familiar with network training, you can choose any network architecture you like and train it with our dataset. Maybe try some newly published networks that are transformer based? You need to make sure that it can be successfully deployed with TensorRT. Not all layers are supported by TensorRT. 
+#### Use Other Networks
+
+If you are familiar with network training, you can choose any network architecture you like and train it with our dataset. You can just any code to train but you need to write your own deployment code. A lot of open source projects may already have Jetson deployment code. You shouldn't just submit other people's code. You also need to make sure that it can be successfully deployed with TensorRT 7. Jetson only has this version. Not all layers are supported by TensorRT 7.
 
 ### TensorRT Deployment
 You should probably do the conversion part outside docker.
