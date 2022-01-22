@@ -61,12 +61,18 @@ The next 'TODO' are some hyperparameters: batchsize, learning rate and epoch. La
 If you are familiar with network training, you can choose any network architecture you like and train it with our dataset. Maybe try some newly published networks that are transformer based? You need to make sure that it can be successfully deployed with TensorRT. Not all layers are supported by TensorRT. 
 
 ### TensorRT Deployment
+For this part, you should probably do it outside docker.
+
+#### Install Pytorch
+If your Jetson doesn't have Pytorch, follow [this](https://forums.developer.nvidia.com/t/pytorch-for-jetson-version-1-10-now-available/72048) to install Pytorch.
+You can install matplotlib with `sudo apt-get install python3-matplotlib`.
+
+#### Install pycuda and set up nvcc
+If you Jetson doesn't have pycuda, follow [this](https://docs.donkeycar.com/guide/robot_sbc/tensorrt_jetson_nano/) to set up nvcc and install pycuda.
 
 After you are done with training the network, convert it into a TensorRT engine on the Jetson NX. To do this, first convert the model from PyTorch into ONNX and then to TensorRT. Then write a function takes in an image, preprocess it, run with the model, post-process and return the results. Tutorial and sample code can be found [here](https://learnopencv.com/how-to-convert-a-model-from-pytorch-to-tensorrt-and-speed-up-inference/).
 
-#### Install Pytorch
-If your Jetson don't have Pytorch, follow [this](https://forums.developer.nvidia.com/t/pytorch-for-jetson-version-1-10-now-available/72048) to install Pytorch.
-You can install matplotlib with `sudo apt-get install python3-matplotlib`.
+
 
 Trying converting the the engine using FP32 and FP16 mode and compare the speed difference.
 
