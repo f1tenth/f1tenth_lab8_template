@@ -65,7 +65,12 @@ If you are familiar with network training, you can choose any network architectu
 #### Install Pytorch
 If your Jetson doesn't have Pytorch, follow [this](https://forums.developer.nvidia.com/t/pytorch-for-jetson-version-1-10-now-available/72048) to install Pytorch.
 You can install matplotlib with `sudo apt-get install python3-matplotlib`.
-You can install onnx with `pip3 install onnx`.
+
+#### Install ONNX
+```
+sudo apt-get install python3-pip libprotoc-dev protobuf-compiler
+pip3 install onnx
+```
 
 #### Install pycuda and set up TensorRT
 If you Jetson doesn't have pycuda, follow [this](https://docs.donkeycar.com/guide/robot_sbc/tensorrt_jetson_nano/) to set up TensorRT and install pycuda.
