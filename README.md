@@ -95,7 +95,7 @@ In the sample code above, the engine is never saved. You can see [this](https://
 explicit_batch = 1 << (int)(trt.NetworkDefinitionCreationFlag.EXPLICIT_BATCH)
 network = builder.create_network(explicit_batch)
 ```
-The sample code use Pytorch to reshape the output from tensorrt. You can just reshape it to (5, 5, 10) with numpy, so that you don't need to import a huge torch in your docker.
+The sample code use Pytorch to reshape the output from tensorrt. You can just reshape it to (5, 5, 10) with numpy, so that you don't need to import a huge torch in your deployment code.
 
 Try converting the the engine using FP32 and FP16 mode and compare the speed difference.
 
