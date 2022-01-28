@@ -72,7 +72,6 @@ The next 'TODO' are some hyperparameters: batchsize, learning rate and epoch. La
 If you are familiar with network training, you can choose any network architecture you like and train it with our dataset. You can use any code to train but you need to write your own deployment code. A lot of open source projects may already have Jetson deployment code. You shouldn't just submit other people's code. You also need to make sure that it can be successfully deployed with TensorRT 7.2. Jetson only has this version. Not all layers are supported by TensorRT 7.2.
 
 ### TensorRT Deployment
-You should probably do the conversion part outside docker.
 
 After you are done with training the network, convert it into a TensorRT engine on the Jetson NX. To do this, first convert the model from PyTorch into ONNX and then to TensorRT. Then write a function takes in an image, preprocess it, run with the model, post-process and return the results. You can use this [tutorial](https://learnopencv.com/how-to-convert-a-model-from-pytorch-to-tensorrt-and-speed-up-inference/) and sample [code](https://github.com/spmallick/learnopencv/tree/master/PyTorch-ONNX-TensorRT).
 
