@@ -1,15 +1,16 @@
 # Lab 8: Vision Lab
 
-## Docker Hub ID
-(FILL ME IN)
-
-## For calculation of camera height, did you use the far image or the near image and why?
-(FILL ME IN)
-
 ## The x, y distance of the unknown cones?
+(FILL ME IN)
+
+## Lane Detection Result Image
+(FILL ME IN)
+
+## Integrated Object Detection + Distance Calculation Result Image
+(FILL ME IN)
+
+## Nerual Network Training & Testing Loss Plot
 (FILL ME IN)
 
 ## Is FP16 faster? Why?
 (FILL ME IN)
-
-
