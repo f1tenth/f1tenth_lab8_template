@@ -42,7 +42,10 @@ Note 3: All images are in 960x540 resolution.
 
 ## IV. Lane Detection
 
-In this part, you will develop a lane detection algorithm with classical computer vision. In the 'lane' folder, there is one image with yellow lane marks. Your task is to detect the lane maskers as good as possible, using HSV color space, blob detection, erode or any other functions. The example with lawn detection in the lecture is a path to follow.
+In this part, you will develop a lane detection algorithm with classical computer vision. In the 'lane' folder, there is one image with yellow lane marks. Your task is to detect the lane maskers as good as possible, using HSV color space, `findContours` or any other functions. The example with lawn detection in the lecture is a path to follow. 
+
+Your final result should look like this:
+![lane_sample](imgs/lane_sample.png)
 
 Please write a function that take in an image and draw green edges around or green overlaps on the marks you detect.
 
