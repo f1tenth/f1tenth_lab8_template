@@ -4,7 +4,7 @@ Welcome to the Vision Lab. This lab aims to give you some experiences in solving
 
 ### Not using docker and ROS2
 
-Due to our ROS2 and Ubuntu 20.04 docker environment, there is no direct support from NVIDIA for TensorRT on Jetsons. If you are interested with implementing the functions in this lab on ROS2 in the docker environment, please consider doing this for your final project.
+Due to our ROS2 and Ubuntu 20.04 docker environment, there is no direct support from NVIDIA for TensorRT on Jetsons. If you are interested with implementing the functions in this lab on ROS2 in the docker environment, please consider doing [this](https://github.com/dusty-nv/jetson-inference/issues/936) for your final project.
 
 ## I. Learning Goals
 
