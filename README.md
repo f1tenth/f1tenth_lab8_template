@@ -69,7 +69,7 @@ The next 'TODO' are some hyperparameters: batchsize, learning rate and epoch. La
 
 #### Use Other Networks
 
-If you are familiar with network training, you can choose any network architecture you like and train it with our dataset. You can use any code to train but you need to write your own deployment code. A lot of open source projects may already have Jetson deployment code. You shouldn't just submit other people's code. You also need to make sure that it can be successfully deployed with TensorRT 7. Jetson only has this version. Not all layers are supported by TensorRT 7.
+If you are familiar with network training, you can choose any network architecture you like and train it with our dataset. You can use any code to train but you need to write your own deployment code. A lot of open source projects may already have Jetson deployment code. You shouldn't just submit other people's code. You also need to make sure that it can be successfully deployed with TensorRT 7.2. Jetson only has this version. Not all layers are supported by TensorRT 7.2.
 
 ### TensorRT Deployment
 You should probably do the conversion part outside docker.
