@@ -2,6 +2,10 @@
 
 Welcome to the Vision Lab. This lab aims to give you some experiences in solving practical vision problems. The first 3 parts in this lab are quite straightforward. The last part is a bit involved. Please work in teams to complete this lab and make good use of Google. A lot of people have implemented this. If you have some problem, it's almost-always-already answered on some developer community.
 
+### Not using docker and ROS2
+
+Due to our ROS2 and Ubuntu 20.04 docker environment, there is no direct support from NVIDIA for TensorRT on Jetsons. If you are interested with implementing the functions in this lab on ROS2 in the docker environment, please consider doing this for your final project.
+
 ## I. Learning Goals
 
 - Use of v4l2 to access and control camera device.
@@ -15,7 +19,7 @@ As we have discussed in the lecture, in Linux cameras are mounted as file system
 
 During racing, we want to receive camera frames as fast as possible. Realsense camera only operates at 60Hz with a 960x540 resolution. Please modify your code so that we have receiving 960x540 images at 60Hz.
 
-Then write a ROS2 node that captures RGB frame from the Realsense camera and publish it onto `/rgb_img` channel using `sensor_msgs/Image` message type.
+<!-- Then write a ROS2 node that captures RGB frame from the Realsense camera and publish it onto `/rgb_img` channel using `sensor_msgs/Image` message type. -->
 
 ## III. Camera Calibration & Distance Measurement
 
@@ -97,9 +101,11 @@ You can also refer to NVIDIA sample [code](https://github.com/NVIDIA/TensorRT/tr
  
 ## VI. Combining the Functions
 
-In the final part, we will write another ROS node that subscribes to `/rgb_img` channel for an image. Run the lane detection and object detection on the image. Then use the center point of the botton bounding box edge from object detection to calcuate the distance to the object. Please note that the image resolution should be 960x540 and your detection resolution is smaller.
+In the final part, write a complete package that takes image from the camera, run the lane detection and object detection on the image, then use the center point of the botton bounding box edge from object detection to calcuate the distance to the object. Please note that the image resolution should be 960x540 and your detection resolution may be smaller.
 
-Publish the result image with lane detection and object detection indicators to the `/det_img` channel. Publish the distance to detections to the `/det_distance` channel.
+<!-- In the final part, we will write another ROS node that subscribes to `/rgb_img` channel for an image. Run the lane detection and object detection on the image. Then use the center point of the botton bounding box edge from object detection to calcuate the distance to the object. Please note that the image resolution should be 960x540 and your detection resolution is smaller. -->
+
+<!-- Publish the result image with lane detection and object detection indicators to the `/det_img` channel. Publish the distance to detections to the `/det_distance` channel. -->
 
 ## VII. Deliverables and Submission
 
