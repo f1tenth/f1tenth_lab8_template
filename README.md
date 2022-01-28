@@ -21,7 +21,7 @@ Then write a ROS2 node that captures RGB frame from the Realsense camera and pub
 
 In this part, you will develop a distance measurement algorithm with the assumption that the camera frame axes are overlapping the car frame axes with a height H on the Z axis of car frame.
 
-First, we need to get the camera intrinsic matrix from a camera calibration. The images needed for such a calibration is provides in the 'calibration' folder. Please use `findChessboardCorners` and `calibrateCamera` to get the intrinsic matrix.
+First, we need to get the camera intrinsic matrix from a camera calibration. The images needed for such a calibration is provides in the 'calibration' folder. Please use `findChessboardCorners` and `calibrateCamera` to get the intrinsic matrix. The calibrations checkerboard is 6x8 and side witdth is 25cm.
 
 Second, the height of the camera can be difficult to measure precisely. We need corresponding point in the car frame to calculate this height. In the 'distance' folder, there are two images with measured x_car distance and two images with unknown distances. 
 
@@ -38,7 +38,7 @@ Note 3: All images are in 960x540 resolution.
 
 ## IV. Lane Detection
 
-In this part, you will develop a lane detection algorithm with classical computer vision. In the 'lane' folder, there is one image with yellow lane marks. Your task is to detect the lane maskers as good as possible, using HSV color space, blob detection, erode or any other functions.
+In this part, you will develop a lane detection algorithm with classical computer vision. In the 'lane' folder, there is one image with yellow lane marks. Your task is to detect the lane maskers as good as possible, using HSV color space, blob detection, erode or any other functions. The example with lawn detection in the lecture is a path to follow.
 
 Please write a function that take in an image and draw green edges around or green overlaps on the marks you detect.
 
@@ -89,7 +89,6 @@ In the sample code above, the engine is never saved. You can see [this](https://
 explicit_batch = 1 << (int)(trt.NetworkDefinitionCreationFlag.EXPLICIT_BATCH)
 network = builder.create_network(explicit_batch)
 ```
-
 The sample code use Pytorch to reshape the output from tensorrt. You can just reshape it to (5, 5, 10) with numpy, so that you don't need to import a huge torch in your docker.
 
 Try converting the the engine using FP32 and FP16 mode and compare the speed difference.
