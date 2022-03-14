@@ -73,7 +73,7 @@ If you are familiar with network training, you can choose any network architectu
 
 ### TensorRT Deployment
 
-After you are done with training the network, convert it into a TensorRT engine on the Jetson NX. To do this, first convert the model from PyTorch into ONNX and then to TensorRT. Then write a function takes in an image, preprocess it, run with the model, post-process and return the results. You can use this [tutorial](https://learnopencv.com/how-to-convert-a-model-from-pytorch-to-tensorrt-and-speed-up-inference/) and sample [code](https://github.com/spmallick/learnopencv/tree/master/PyTorch-ONNX-TensorRT).
+After you are done with training the network, convert it into a TensorRT engine on the Jetson NX. To do this, first convert the model from PyTorch into ONNX and then to TensorRT. Then write a function that takes in an image, preprocess it, run with the model, post-process and return the results. You can use this [tutorial](https://learnopencv.com/how-to-convert-a-model-from-pytorch-to-tensorrt-and-speed-up-inference/) and sample [code](https://github.com/spmallick/learnopencv/tree/master/PyTorch-ONNX-TensorRT).
 
 #### Install Pytorch
 If your Jetson doesn't have Pytorch, follow [this](https://forums.developer.nvidia.com/t/pytorch-for-jetson-version-1-10-now-available/72048) to install Pytorch.
