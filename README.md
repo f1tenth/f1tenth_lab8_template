@@ -27,9 +27,9 @@ In this part, you will develop a distance measurement algorithm with the assumpt
 
 First, we need to get the camera intrinsic matrix from a camera calibration. The images needed for such a calibration is provides in the 'calibration' folder. Please use `findChessboardCorners` and `calibrateCamera` to get the intrinsic matrix. The calibrations checkerboard is 6x8 and side witdth is 25cm.
 
-Second, the height of the camera can be difficult to measure precisely. We need corresponding point in the car frame to calculate this height. In the 'distance' folder, there are two images with measured x_car distance and two images with unknown distances. 
+Second, the height of the camera can be difficult to measure precisely. We need corresponding point in the car frame to calculate this height. In the 'distance' folder, there are an image with measured x_car distance and an image with unknown distances. 
 
-Please calculate the mounting height. Then write a function that takes in image pixel coordinates and outputs the distance in x_car and y_car coordinate. And for the two images with unknown distances, calculated the distances from the camera to the cone. 
+Please calculate the mounting height. Then write a function that takes in image pixel coordinates and outputs the distance in x_car and y_car coordinate. And for the image with unknown distances, calculated the distances from the camera to the cone. 
 
 Note 1: All distances are with respect to the lower right corner of the nearest red cone.
 ![cone_point](imgs/cone_point.png)
