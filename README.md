@@ -21,6 +21,8 @@ During racing, we want to receive camera frames as fast as possible. Realsense c
 
 <!-- Then write a ROS2 node that captures RGB frame from the Realsense camera and publish it onto `/rgb_img` channel using `sensor_msgs/Image` message type. -->
 
+Save this part of the code as 'camera.py' or 'camera.cpp'.
+
 ## III. Camera Calibration & Distance Measurement
 
 In this part, you will develop a distance measurement algorithm with the assumption that the camera frame axes are overlapping the car frame axes with a height H on the Z axis of car frame.
@@ -40,6 +42,8 @@ Note 3: All images are in 960x540 resolution.
 
 <!-- ![](https://latex.codecogs.com/svg.latex?b) -->
 
+Save this part of the code as 'distance.py' or 'distance.cpp'.
+
 ## IV. Lane Detection
 
 In this part, you will develop a lane detection algorithm with classical computer vision. In the 'lane' folder, there is one image with yellow lane marks. Your task is to detect the lane maskers as good as possible, using HSV color space, `findContours` or any other functions. The example with lawn detection in the lecture is a path to follow. 
@@ -48,6 +52,8 @@ Your final result should look like this:
 ![lane_sample](imgs/lane_sample.png)
 
 Please write a function that take in an image and draw green edges around or green overlaps on the marks you detect.
+
+Save this part of the code as 'lane.py' or 'lane.cpp'.
 
 ## V. Object Detection Network Training & Deployment
 
@@ -74,6 +80,8 @@ If you are familiar with network training, you can choose any network architectu
 ### TensorRT Deployment
 
 After you are done with training the network, convert it into a TensorRT engine on the Jetson NX. To do this, first convert the model from PyTorch into ONNX and then to TensorRT. Then write a function that takes in an image, preprocess it, run with the model, post-process and return the results. You can use this [tutorial](https://learnopencv.com/how-to-convert-a-model-from-pytorch-to-tensorrt-and-speed-up-inference/) and sample [code](https://github.com/spmallick/learnopencv/tree/master/PyTorch-ONNX-TensorRT).
+
+Save this part of the code as 'convert_trt.py' or 'convert_trt.cpp' and 'detection.py' or 'detection.cpp'.
 
 #### Install Pytorch
 If your Jetson doesn't have Pytorch, follow [this](https://forums.developer.nvidia.com/t/pytorch-for-jetson-version-1-10-now-available/72048) to install Pytorch.
