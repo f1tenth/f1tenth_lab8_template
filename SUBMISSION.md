@@ -13,4 +13,6 @@
 (FILL ME IN)
 
 ## Is FP16 faster? Why?
-(FILL ME IN)
+FP16 inference time (ms): (FILL ME IN)
+FP32 inference time (ms): (FILL ME IN)
+You should time only the inference part and average out at least 100 inference cycles.
