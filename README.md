@@ -29,9 +29,9 @@ In this part, you will develop a distance measurement algorithm with the assumpt
 
 First, we need to get the camera intrinsic matrix from a camera calibration. The images needed for such a calibration is provides in the 'calibration' folder. Please use `findChessboardCorners` and `calibrateCamera` to get the intrinsic matrix. The calibrations checkerboard is 6x8 and side witdth is 25cm.
 
-Second, the height of the camera can be difficult to measure precisely. We need corresponding point in the car frame to calculate this height. In the `resource` folder, there is an image with measured x_car distance called `cone_x40cm.pny` and an image with unknown distance called `cone_unknown.png`. 
+Second, the height of the camera can be difficult to measure precisely. We need corresponding point in the car frame to calculate this height. In the `resource` folder, there is an image with measured x_car distance called `cone_x40cm.png`. The x_car of the cone is 40cm. Please calculate the mounting height with this info.
 
-Please calculate the mounting height. Then write a function that takes in image pixel coordinates and outputs the distance in x_car and y_car coordinate. And for the image with unknown distances, calculated the distances from the camera to the cone. 
+Please write a function that takes in image pixel coordinates and outputs the distance in x_car and y_car coordinate. There is another image with unknown distance called `cone_unknown.png` in the `resource` folder. Please the distances from the camera to this cone. 
 
 Note 1: All distances are with respect to the lower right corner of the nearest red cone.
 ![cone_point](imgs/cone_point.png)
@@ -46,7 +46,7 @@ Save this part of the code as 'distance.py' or 'distance.cpp'.
 
 ## IV. Lane Detection
 
-In this part, you will develop a lane detection algorithm with classical computer vision. In the 'lane' folder, there is one image with yellow lane marks. Your task is to detect the lane maskers as good as possible, using HSV color space, `findContours` or any other functions. The example with lawn detection in the lecture is a path to follow. 
+In this part, you will develop a lane detection algorithm with classical computer vision. In the 'resource' folder, there is one image with yellow lane marks. Your task is to detect the lane maskers as good as possible, using HSV color space, `findContours` or any other functions. The example with lawn detection in the lecture is a path to follow. 
 
 Your final result should look like this:
 ![lane_sample](imgs/lane_sample.png)
@@ -113,11 +113,15 @@ You can also refer to NVIDIA sample [code](https://github.com/NVIDIA/TensorRT/tr
 
 In the final part, write a complete package that takes image from the camera, run the lane detection and object detection on the image, then use the center point of the botton bounding box edge from object detection to calcuate the distance to the object. Please note that the image resolution should be 960x540 and your detection resolution may be smaller.
 
+Save this part of the code as 'integrated.py' or 'integrated.cpp'.
+
 <!-- In the final part, we will write another ROS node that subscribes to `/rgb_img` channel for an image. Run the lane detection and object detection on the image. Then use the center point of the botton bounding box edge from object detection to calcuate the distance to the object. Please note that the image resolution should be 960x540 and your detection resolution is smaller. -->
 
 <!-- Publish the result image with lane detection and object detection indicators to the `/det_img` channel. Publish the distance to detections to the `/det_distance` channel. -->
 
 ## VII. Deliverables and Submission
+
+Push your finished code onto github repo. Make you name the parts as instructed.
 
 Please follow the `submission.md` in the Github repo.
 
