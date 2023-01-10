@@ -1,10 +1,6 @@
 # Lab 8: Vision Lab
 
-Welcome to the Vision Lab. This lab aims to give you some experiences in solving practical vision problems. The first 3 parts in this lab are quite straightforward. The last part is a bit involved. Please work in teams to complete this lab and make good use of Google. A lot of people have implemented this. If you have some problem, it's highly likely answered on some developer community.
-
-### Not using docker and ROS2
-
-Due to our ROS2 and Ubuntu 20.04 docker environment, there is no direct support from NVIDIA for TensorRT on Jetsons. If you are interested with implementing the functions in this lab on ROS2 in the docker environment, please consider doing [this](https://github.com/dusty-nv/jetson-inference/issues/936) for your final project.
+Welcome to the Vision Lab. This lab aims to give you some experiences in solving practical vision problems. There are four parts in this lab. Part 1-3 are quite straightforward, whileas the last part is a bit involved. Please work in teams to complete this lab and make good use of Google. A lot of people have implemented this. If you have some problem, it's highly likely answered on some developer community.
 
 ## I. Learning Goals
 
