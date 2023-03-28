@@ -1,6 +1,6 @@
 # Lab 8: Vision Lab
 
-Welcome to the Vision Lab.There are four parts in this lab. Part 1-3 are quite straightforward, whileas the last part is a bit involved. Please work in teams to complete this lab and make good use of Google. A lot of people have implemented this. If you have some problem, it's highly likely answered on some developer community.
+Welcome to the Vision Lab. There are four parts in this lab. Part 1-3 are quite straightforward, whileas the last part is a bit involved. Please work in teams to complete this lab and make good use of Google. A lot of people have implemented this. If you have some problem, it's highly likely answered on some developer community.
 
 ## I. Learning Goals
 
