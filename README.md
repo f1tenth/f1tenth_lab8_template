@@ -71,7 +71,7 @@ The next 'TODO' are some hyperparameters: batchsize, learning rate and epoch. La
 
 #### Use Other Networks
 
-If you are familiar with network training, you can choose any network architecture you like and train it with our dataset. You can receive great **extra credit** is you train a better object detection NN that is more robust. A lot of open source projects may already have Jetson deployment code. You shouldn't just submit other people's code. You also need to make sure that it can be successfully deployed with TensorRT 8.5, which is the latest version you can get for Jetson.
+If you are familiar with network training, you can choose any network architecture you like and train it with our dataset. You can receive great **extra credit** if you train a better object detection NN that is more robust. You need to make sure that it can be successfully deployed with TensorRT 8.5, which is the latest version you can get for Jetson. List your name in the `submission.md` if you did this.
 
 ### TensorRT Deployment
 
@@ -80,10 +80,11 @@ After you are done with training the network, convert it into a TensorRT engine 
 Save this part of the code as 'convert_trt.py' or 'convert_trt.cpp' and 'detection.py' or 'detection.cpp'.
 
 #### Install Pytorch
-If your Jetson doesn't have Pytorch, follow [this](https://docs.nvidia.com/deeplearning/frameworks/install-pytorch-jetson-platform/index.html) to install Pytorch. You can install matplotlib with `sudo apt-get install python3-matplotlib`.
+If your Jetson doesn't have Pytorch, follow [this](https://docs.nvidia.com/deeplearning/frameworks/install-pytorch-jetson-platform/index.html) to install Pytorch.
 
-#### Install ONNX
+#### Install ONNX and matplotlib
 ```
+sudo apt-get install python3-matplotlib
 sudo apt-get install python3-pip libprotoc-dev protobuf-compiler
 pip3 install onnx
 ```
@@ -95,7 +96,7 @@ If your Jetson doesn't have pycuda, follow [this](https://docs.donkeycar.com/gui
 
 1. In your deployment order, do not import Pytorch. Use numpy to reshape the output to (5, 5, 10) if you use my code.
 
-2. Convert the the engine using FP32 and FP16 mode and compare the speed difference. See 'submission.md'.
+2. Convert the the engine using FP32 and FP16 mode and compare the speed difference. See `submission.md`.
  
 ## VI. Combining the Functions
 
