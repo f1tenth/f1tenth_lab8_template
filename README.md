@@ -1,6 +1,6 @@
 # Lab 8: Vision Lab
 
-Welcome to the Vision Lab. This lab aims to give you some experiences in solving practical vision problems. There are four parts in this lab. Part 1-3 are quite straightforward, whileas the last part is a bit involved. Please work in teams to complete this lab and make good use of Google. A lot of people have implemented this. If you have some problem, it's highly likely answered on some developer community.
+Welcome to the Vision Lab.There are four parts in this lab. Part 1-3 are quite straightforward, whileas the last part is a bit involved. Please work in teams to complete this lab and make good use of Google. A lot of people have implemented this. If you have some problem, it's highly likely answered on some developer community.
 
 ## I. Learning Goals
 
@@ -71,17 +71,16 @@ The next 'TODO' are some hyperparameters: batchsize, learning rate and epoch. La
 
 #### Use Other Networks
 
-If you are familiar with network training, you can choose any network architecture you like and train it with our dataset. You can use any code to train but you need to write your own deployment code. A lot of open source projects may already have Jetson deployment code. You shouldn't just submit other people's code. You also need to make sure that it can be successfully deployed with TensorRT 7.2. Jetson only has this version. Not all layers are supported by TensorRT 7.2.
+If you are familiar with network training, you can choose any network architecture you like and train it with our dataset. You can receive great **extra credit** is you train a better object detection NN that is more robust. A lot of open source projects may already have Jetson deployment code. You shouldn't just submit other people's code. You also need to make sure that it can be successfully deployed with TensorRT 8.5, which is the latest version you can get for Jetson.
 
 ### TensorRT Deployment
 
-After you are done with training the network, convert it into a TensorRT engine on the Jetson NX. To do this, first convert the model from PyTorch into ONNX and then to TensorRT. Then write a function that takes in an image, preprocess it, run with the model, post-process and return the results. You can use this [tutorial](https://learnopencv.com/how-to-convert-a-model-from-pytorch-to-tensorrt-and-speed-up-inference/) and sample [code](https://github.com/spmallick/learnopencv/tree/master/PyTorch-ONNX-TensorRT).
+After you are done with training the network, convert it into a TensorRT engine on the Jetson NX. To do this, first convert the model from PyTorch into ONNX and then to TensorRT. Then write a function that takes in an image, preprocess it, run with the model, post-process and return the results. Refer to the sample [code](https://github.com/NVIDIA/TensorRT) provided by TensorRT for building the engine. Make sure you select the correct branch for your TensorRT version. Some other references are attached at the end. **Notice they may be for a previous version.**
 
 Save this part of the code as 'convert_trt.py' or 'convert_trt.cpp' and 'detection.py' or 'detection.cpp'.
 
 #### Install Pytorch
-If your Jetson doesn't have Pytorch, follow [this](https://forums.developer.nvidia.com/t/pytorch-for-jetson-version-1-10-now-available/72048) to install Pytorch.
-You can install matplotlib with `sudo apt-get install python3-matplotlib`.
+If your Jetson doesn't have Pytorch, follow [this](https://docs.nvidia.com/deeplearning/frameworks/install-pytorch-jetson-platform/index.html) to install Pytorch. You can install matplotlib with `sudo apt-get install python3-matplotlib`.
 
 #### Install ONNX
 ```
@@ -90,20 +89,13 @@ pip3 install onnx
 ```
 
 #### Install pycuda and set up TensorRT
-If your Jetson doesn't have pycuda, follow [this](https://docs.donkeycar.com/guide/robot_sbc/tensorrt_jetson_nano/) to set up TensorRT and install pycuda.
+If your Jetson doesn't have pycuda, follow [this](https://docs.donkeycar.com/guide/robot_sbc/tensorrt_jetson_nano/) to set up TensorRT and install pycuda. (Only do Step 2)
 
 #### Implementation Tips
 
-In the sample code above, the engine is never saved. You can see [this](https://github.com/NVIDIA-AI-IOT/torch2trt/issues/233) on how to save and read engine file. Also, due to version difference, we need to replace this [line](https://github.com/spmallick/learnopencv/blob/a18fa4e1a255f58700b3c4687e425cabd58c41bf/PyTorch-ONNX-TensorRT/trt_inference.py#L17) by the following two lines.
-```
-explicit_batch = 1 << (int)(trt.NetworkDefinitionCreationFlag.EXPLICIT_BATCH)
-network = builder.create_network(explicit_batch)
-```
-The sample code use Pytorch to reshape the output from tensorrt. You can just reshape it to (5, 5, 10) with numpy, so that you don't need to import a huge torch in your deployment code.
+1. In your deployment order, do not import Pytorch. Use numpy to reshape the output to (5, 5, 10) if you use my code.
 
-Try converting the the engine using FP32 and FP16 mode and compare the speed difference.
-
-You can also refer to NVIDIA sample [code](https://github.com/NVIDIA/TensorRT/tree/main/samples/python) and [guide](https://docs.nvidia.com/deeplearning/tensorrt/sample-support-guide/index.html).
+2. Convert the the engine using FP32 and FP16 mode and compare the speed difference. See 'submission.md'.
  
 ## VI. Combining the Functions
 
@@ -129,3 +121,12 @@ Please follow the `submission.md` in the Github repo.
 - Network Training: **15** Points
 - TensorRT Deployment: **30** Points
 - Integration: **10** Points
+
+## Other References
+1. [tutorial](https://learnopencv.com/how-to-convert-a-model-from-pytorch-to-tensorrt-and-speed-up-inference/)
+2. [guide](https://docs.nvidia.com/deeplearning/tensorrt/sample-support-guide/index.html)
+3. You can see [this](https://github.com/NVIDIA-AI-IOT/torch2trt/issues/233) on how to save and read engine file. Also, due to version difference, we need to replace this [line](https://github.com/spmallick/learnopencv/blob/a18fa4e1a255f58700b3c4687e425cabd58c41bf/PyTorch-ONNX-TensorRT/trt_inference.py#L17) by the following two lines.
+```
+explicit_batch = 1 << (int)(trt.NetworkDefinitionCreationFlag.EXPLICIT_BATCH)
+network = builder.create_network(explicit_batch)
+```
