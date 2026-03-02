@@ -1,4 +1,4 @@
-# Lab 9: Model Predictive Control
+# Lab 8: Model Predictive Control
 
 ## I. Learning Goals
 
