@@ -11,7 +11,7 @@ from rclpy.node import Node
 from scipy.linalg import block_diag
 from scipy.sparse import block_diag, csc_matrix, diags
 from sensor_msgs.msg import LaserScan
-from utils import nearest_point
+from utils import nearest_point, calc_interpolated_ref_trajectory
 
 # TODO CHECK: include needed ROS msg type headers and libraries
 
@@ -234,49 +234,24 @@ class MPC(Node):
 
     def calc_ref_trajectory(self, state, cx, cy, cyaw, sp):
         """
-        calc referent trajectory ref_traj in T steps: [x, y, v, yaw]
-        using the current velocity, calc the T points along the reference path
+        Calculate interpolated reference trajectory for T steps: [x, y, v, yaw]
+
+        Uses proper linear interpolation between waypoints based on velocity
+        propagation, rather than snapping to discrete waypoint indices.
+
+        :param state: Current vehicle state
         :param cx: Course X-Position
         :param cy: Course y-Position
         :param cyaw: Course Heading
         :param sp: speed profile
-        :dl: distance step
-        :pind: Setpoint Index
-        :return: reference trajectory ref_traj, reference steering angle
+        :return: reference trajectory ref_traj (NXK x TK+1)
         """
-
-        # Create placeholder Arrays for the reference trajectory for T steps
-        ref_traj = np.zeros((self.config.NXK, self.config.TK + 1))
-        ncourse = len(cx)
-
-        # Find nearest index/setpoint from where the trajectories are calculated
-        _, _, _, ind = nearest_point(np.array([state.x, state.y]), np.array([cx, cy]).T)
-
-        # Load the initial parameters from the setpoint into the trajectory
-        ref_traj[0, 0] = cx[ind]
-        ref_traj[1, 0] = cy[ind]
-        ref_traj[2, 0] = sp[ind]
-        ref_traj[3, 0] = cyaw[ind]
-
-        # based on current velocity, distance traveled on the ref line between time steps
-        travel = abs(state.v) * self.config.DTK
-        dind = travel / self.config.dlk
-        ind_list = int(ind) + np.insert(
-            np.cumsum(np.repeat(dind, self.config.TK)), 0, 0
-        ).astype(int)
-        ind_list[ind_list >= ncourse] -= ncourse
-        ref_traj[0, :] = cx[ind_list]
-        ref_traj[1, :] = cy[ind_list]
-        ref_traj[2, :] = sp[ind_list]
-        cyaw[cyaw - state.yaw > 4.5] = np.abs(
-            cyaw[cyaw - state.yaw > 4.5] - (2 * np.pi)
+        return calc_interpolated_ref_trajectory(
+            state.x, state.y,
+            cx, cy, sp, cyaw,
+            self.config.DTK,
+            self.config.TK
         )
-        cyaw[cyaw - state.yaw < -4.5] = np.abs(
-            cyaw[cyaw - state.yaw < -4.5] + (2 * np.pi)
-        )
-        ref_traj[3, :] = cyaw[ind_list]
-
-        return ref_traj
 
     def predict_motion(self, x0, oa, od, xref):
         path_predict = xref * 0.0
