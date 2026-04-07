@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.5)
 project(mpc)
 
-# Default to C++14
+# Default to C++17 (required for structured bindings)
 if(NOT CMAKE_CXX_STANDARD)
-  set(CMAKE_CXX_STANDARD 14)
+  set(CMAKE_CXX_STANDARD 17)
 endif()
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
@@ -23,11 +23,14 @@ foreach(PACKAGE
   std_msgs
   visualization_msgs
   Eigen3
+  tf2
   tf2_ros)
 
   find_package(${PACKAGE} REQUIRED)
 
 endforeach()
+
+find_package(OsqpEigen REQUIRED)
 
 # Include Cpp "include" directory
 include_directories(include)
@@ -38,9 +41,17 @@ include_directories(
 # Create Cpp executable
 add_executable(mpc_node src/mpc_node.cpp)
 
-ament_target_dependencies(mpc_node 
-  rclcpp geometry_msgs ackermann_msgs nav_msgs sensor_msgs std_msgs visualization_msgs tf2_ros
+target_include_directories(mpc_node PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>
+  ${EIGEN3_INCLUDE_DIRS}
 )
+
+ament_target_dependencies(mpc_node
+  rclcpp geometry_msgs ackermann_msgs nav_msgs sensor_msgs std_msgs visualization_msgs tf2 tf2_ros
+)
+
+target_link_libraries(mpc_node PRIVATE OsqpEigen::OsqpEigen)
 
 # Install Cpp executables
 install(TARGETS
