@@ -39,8 +39,8 @@ public:
     }
 
 private:
-    void pose_callback(const geometry_msgs::msg::PoseStamped::SharedPtr pose_msg) {
-        (void)pose_msg;  // Suppress unused warning
+    void odom_callback(const nav_msgs::msg::Odometry::SharedPtr odom_msg) {
+        (void)odom_msg;  // Suppress unused warning
 
         // TODO: extract pose from ROS msg
         State vehicle_state;
@@ -170,11 +170,13 @@ private:
         // --------------------------------------------------------
         solver_.settings()->setVerbosity(false);
         solver_.settings()->setWarmStart(true);
+        solver_.settings()->setPolish(true);
 
         solver_.data()->setNumberOfVariables(n_vars);
         solver_.data()->setNumberOfConstraints(n_constraints);
         solver_.data()->setHessianMatrix(P_);
-        solver_.data()->setGradient(Eigen::VectorXd::Zero(n_vars));
+        Eigen::VectorXd initial_grad = Eigen::VectorXd::Zero(n_vars);
+        solver_.data()->setGradient(initial_grad);
         solver_.data()->setLinearConstraintsMatrix(A_);
         solver_.data()->setLowerBound(l_);
         solver_.data()->setUpperBound(u_);

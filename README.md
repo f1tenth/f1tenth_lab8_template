@@ -107,7 +107,7 @@ You'll need to create a reference trajectory that has velocity attached to each 
 
 ## V. Setting up the Optimization
 
-In Python, we'll be using CVXPY to set up the optimization problem with the OSQP solver. Most of the problem set up and potential code optimization that speeds up the MPC are already done for you. Your first task is to fill in the objective function and the constraints for the MPC in the function `mpc_prob_init()`. The second task is to fill in the `pose_callback`. You can find missing parts in the code by searching for `TODO` tags. There is also a C++ scaffold in `mpc/src/mpc_node.cpp` that mirrors the Python structure and uses OSQP-Eigen, with the state/input indexing and linearized dynamics hidden behind helper functions so students can focus on the constraint definitions.
+In Python, we'll be using CVXPY to set up the optimization problem with the OSQP solver. Most of the problem set up and potential code optimization that speeds up the MPC are already done for you. Your first task is to fill in the objective function and the constraints for the MPC in the function `mpc_prob_init()`. The second task is to fill in the `odom_callback`. You can find missing parts in the code by searching for `TODO` tags. There is also a C++ scaffold in `mpc/src/mpc_node.cpp` that mirrors the Python structure and uses [OSQP-Eigen](https://github.com/gbionics/osqp-eigen), with the state/input indexing provided in `mpc_utils.hpp` for your convenience.
 
 ## VI. Visualization
 

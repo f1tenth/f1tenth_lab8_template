@@ -83,7 +83,7 @@ class MPC(Node):
         # initialize MPC problem
         self.mpc_prob_init()
 
-    def pose_callback(self, pose_msg):
+    def odom_callback(self, odom_msg):
         pass
         # TODO: extract pose from ROS msg
         vehicle_state = None
