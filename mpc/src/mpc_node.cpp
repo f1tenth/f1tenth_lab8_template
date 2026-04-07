@@ -34,6 +34,8 @@ public:
 
         // Initialize MPC problem
         mpc_prob_init();
+
+        RCLCPP_INFO(get_logger(), "MPC Node initialized");
     }
 
 private:

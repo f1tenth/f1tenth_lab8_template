@@ -51,7 +51,7 @@ ament_target_dependencies(mpc_node
   rclcpp geometry_msgs ackermann_msgs nav_msgs sensor_msgs std_msgs visualization_msgs tf2 tf2_ros
 )
 
-target_link_libraries(mpc_node PRIVATE OsqpEigen::OsqpEigen)
+target_link_libraries(mpc_node OsqpEigen::OsqpEigen)
 
 # Install Cpp executables
 install(TARGETS
