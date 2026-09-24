@@ -8,6 +8,7 @@ import rclpy
 from ackermann_msgs.msg import AckermannDrive, AckermannDriveStamped
 from geometry_msgs.msg import PoseStamped
 from rclpy.node import Node
+from rclpy.executors import ExternalShutdownException
 from scipy.linalg import block_diag
 from scipy.sparse import block_diag, csc_matrix, diags
 from sensor_msgs.msg import LaserScan
@@ -91,7 +92,7 @@ class MPC(Node):
         # TODO: Calculate the next reference trajectory for the next T steps
         #       with current vehicle pose.
         #       ref_x, ref_y, ref_yaw, ref_v are columns of self.waypoints
-        ref_path = self.calc_ref_trajectory(self, vehicle_state, ref_x, ref_y, ref_yaw, ref_v)
+        ref_path = self.calc_ref_trajectory(vehicle_state, ref_x, ref_y, ref_yaw, ref_v)
         x0 = [vehicle_state.x, vehicle_state.y, vehicle_state.v, vehicle_state.yaw]
 
         # TODO: solve the MPC control problem
@@ -398,7 +399,14 @@ def main(args=None):
     rclpy.init(args=args)
     print("MPC Initialized")
     mpc_node = MPC()
-    rclpy.spin(mpc_node)
+    try:
+        rclpy.spin(mpc_node)
+    except (KeyboardInterrupt, ExternalShutdownException):
+        pass  # Ctrl-C: stop quietly
+    finally:
+        mpc_node.destroy_node()
+        rclpy.try_shutdown()
 
-    mpc_node.destroy_node()
-    rclpy.shutdown()
+
+if __name__ == '__main__':
+    main()

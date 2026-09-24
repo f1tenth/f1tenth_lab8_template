@@ -20,7 +20,12 @@
   <depend>nav_msgs</depend>
   <depend>visualization_msgs</depend>
   <depend>tf2</depend>
+  <depend>eigen</depend>
   <depend>tf2_ros</depend>
+
+  <exec_depend>ros2launch</exec_depend>
+  <!-- cvxpy and osqp (the Python node's solver) are not rosdep keys: pip install cvxpy osqp.
+       The C++ node needs OSQP-Eigen (https://github.com/robotology/osqp-eigen), built from source. -->
 
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>

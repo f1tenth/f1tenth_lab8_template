@@ -30,7 +30,15 @@ foreach(PACKAGE
 
 endforeach()
 
-find_package(OsqpEigen REQUIRED)
+# OSQP-Eigen is only needed by the C++ node. Without it (the grading image has
+# none, see the README) the C++ target is skipped and the Python node still
+# builds, so a Python team compiles anywhere.
+find_package(OsqpEigen QUIET)
+if(OsqpEigen_FOUND)
+  message(STATUS "OsqpEigen found: building the C++ mpc_node")
+else()
+  message(STATUS "OsqpEigen not found: skipping the C++ mpc_node (the Python mpc_node.py is still installed)")
+endif()
 
 # Include Cpp "include" directory
 include_directories(include)
@@ -38,25 +46,27 @@ include_directories(
   ${EIGEN3_INCLUDE_DIRS}
 )
 
-# Create Cpp executable
-add_executable(mpc_node src/mpc_node.cpp)
+if(OsqpEigen_FOUND)
+  # Create Cpp executable
+  add_executable(mpc_node src/mpc_node.cpp)
 
-target_include_directories(mpc_node PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include>
-  ${EIGEN3_INCLUDE_DIRS}
-)
+  target_include_directories(mpc_node PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include>
+    ${EIGEN3_INCLUDE_DIRS}
+  )
 
-ament_target_dependencies(mpc_node
-  rclcpp geometry_msgs ackermann_msgs nav_msgs sensor_msgs std_msgs visualization_msgs tf2 tf2_ros
-)
+  ament_target_dependencies(mpc_node
+    rclcpp geometry_msgs ackermann_msgs nav_msgs sensor_msgs std_msgs visualization_msgs tf2 tf2_ros
+  )
 
-target_link_libraries(mpc_node OsqpEigen::OsqpEigen)
+  target_link_libraries(mpc_node OsqpEigen::OsqpEigen)
 
-# Install Cpp executables
-install(TARGETS
-  mpc_node
-  DESTINATION lib/${PROJECT_NAME})
+  # Install Cpp executables
+  install(TARGETS
+    mpc_node
+    DESTINATION lib/${PROJECT_NAME})
+endif()
 
 # Install Python modules
 ament_python_install_package(${PROJECT_NAME})
@@ -66,6 +76,16 @@ install(PROGRAMS
   scripts/mpc_node.py
   scripts/utils.py
   DESTINATION lib/${PROJECT_NAME}
+)
+
+# Install the launch files: the autograder starts your nodes with them
+install(DIRECTORY launch
+  DESTINATION share/${PROJECT_NAME}
+)
+
+# Install the waypoint files, so the node finds them wherever the package is built
+install(DIRECTORY waypoints
+  DESTINATION share/${PROJECT_NAME}
 )
 
 if(BUILD_TESTING)

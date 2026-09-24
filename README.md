@@ -109,19 +109,77 @@ You'll need to create a reference trajectory that has velocity attached to each 
 
 In Python, we'll be using CVXPY to set up the optimization problem with the OSQP solver. Most of the problem set up and potential code optimization that speeds up the MPC are already done for you. Your first task is to fill in the objective function and the constraints for the MPC in the function `mpc_prob_init()`. The second task is to fill in the `odom_callback`. You can find missing parts in the code by searching for `TODO` tags. There is also a C++ scaffold in `mpc/src/mpc_node.cpp` that mirrors the Python structure and uses [OSQP-Eigen](https://github.com/gbionics/osqp-eigen), with the state/input indexing provided in `mpc_utils.hpp` for your convenience.
 
+**Dependencies.** The Python skeleton needs cvxpy with the OSQP solver, which are not ROS packages: `pip install cvxpy osqp` (add `--break-system-packages` if pip refuses on Ubuntu 24.04). The autograder installs them before it builds your package. The C++ scaffold needs [OSQP-Eigen](https://github.com/robotology/osqp-eigen), built from source together with [OSQP](https://github.com/osqp/osqp). **The grading image has no OSQP-Eigen**: the skeleton's `CMakeLists.txt` skips the C++ node when it is not found (so a Python team's package builds anywhere), which means a C++ team must vendor osqp and osqp-eigen inside the package, or wait for the course to announce a grading image that has them.
+
 ## VI. Visualization
 
 It might be helpful to visualize the current selected segment of reference path and the predicted trajectory from MPC to debug.
 
-## VII. Deliverables
+## VII. What the autograder runs
 
-- **Deliverable 1**: Commit your mpc package to GitHub. Your commited code should run smoothly in simulation.
-- **Deliverable 2**: Submit a link to a video on YouTube showing the car tracking waypoints with MPC in Levine hallway in simulation. 
+In the [f1tenth_gym_ros](https://github.com/f1tenth/f1tenth_gym_ros/tree/dev-jazzy) simulator your node drives Levine. Set these in `config/sim.yaml` and your laptop run is the autograder's run: `map_path: 'maps/levine_blocked'`, `sx: -12.0`, `sy: 0.0`, `stheta: 0.0` (the stock start pose), driving counter-clockwise. The map comes with a centerline, so the simulator counts your laps (`/ego_racecar/lap_count`, and a `completed lap N, last lap X s` line in the bridge log). Those lap times are exactly what the autograder reports and what the leaderboard ranks: a lap runs from the finish line back to it, the 12 m from the start pose to the line are a run-up, so every lap is a flying lap.
 
-## VIII: Grading Rubric
-- Compilation: **10** Points
-- Correct objectives and constraints: **50** Points
-- Working path tracker: **20** Points
-- Videos:
+**One launch file.** The autograder starts your code with `mpc/launch/levine_launch.py`, and nothing else:
+
+```bash
+ros2 launch mpc levine_launch.py
+```
+
+It is yours to edit: set `EXECUTABLE` to the node you wrote (`mpc_node.py` for Python, `mpc_node` for C++), put your tuned values in `PARAMETERS` (or a `.yaml` config file), and start as many nodes as you like. Start your own nodes only: the autograder runs the simulator. Without the launch file the autograder falls back to `ros2 run mpc <executable>` with no parameter file, so tuned values must then be your node's defaults. Line F of your result tells you how your code was started.
+
+**Ship your waypoints with your package.** Put your CSV files in `mpc/waypoints/`; the skeleton's `CMakeLists.txt` installs that folder, and your node finds it with `get_package_share_directory('mpc')` (Python, `ament_index_python.packages`) or `ament_index_cpp::get_package_share_directory("mpc")` (C++). A path like `/home/you/sim_ws/...` only exists on your laptop: on the autograder your node would die at start-up.
+
+The autograder then does two things:
+
+1. **Checks your MPC without the simulator.** It plays the simulator's localisation for a car held still at a pose on the Levine loop (`/ego_racecar/odom`, the `map -> ego_racecar/base_link` transform, an empty `/scan`) and records what your node publishes on `/drive`. Five checks, one per part of the problem:
+   - standing 0.6 m left of the middle of the south hallway, the car must steer further right than from 0.6 m right of it;
+   - turned 25° left, it must steer further right than turned 25° right;
+   - half way round the south-east corner (a left turn: the loop runs counter-clockwise) it must steer further left than in the middle of the hallway;
+   - standing still (the odometry reports 0 m/s), the speed it commands must be above 0 and at most 1.5 m/s: with the acceleration bounded, the first step of the plan can only add `a_max × dt`;
+   - turned 60° left at 2 m/s, it must steer back to the right, and never command more than the car's steering limit, 0.4189 rad.
+
+   Each comparison only asks which way the steering changes, so your path may be a centerline or a racing line.
+2. **Drives three laps in a row** of `levine_blocked`, counter-clockwise, from the stock start pose, without touching a wall. A run that ends early earns partial credit for the fraction covered; the fastest of the three laps goes to the leaderboard.
+
+## VIII. Deliverables and Submission
+
+**This lab is done in teams**, the same teams as lab 4. Your team is already formed — you do not create one or invite anyone. **Every member of the team runs the same command**:
+
+```bash
+gh student accept RoboRacer-Class ese-6150 lab-8-model-predictive-control
+```
+
+Whoever runs it first creates the team's shared repository, `ese-6150-lab-8-model-predictive-control-group-<n>`; everyone else gets `Repository already exists` and the same URL. All of you push to that one repository, so **pull before you push**. One submission is the whole team's submission, and every member gets the same grade.
+
+- **Deliverable 1**: Commit your `mpc` package to your team's repository, waypoints included. Your commited code should run smoothly in simulation: three laps of Levine in a row without touching a wall. The autograder watches the run, and the leaderboard keeps your team's fastest lap.
+- **Deliverable 2**: Submit links to two videos in **`SUBMISSION.md`** (YouTube unlisted, or Google Drive shared as **"Anyone with the link can view"**): the car tracking waypoints with MPC in Levine in the simulator, and on the real car in Levine hallway.
+
+### Submitting
+
+You can commit and push your work as often as you need, but a plain push does **not** count as a submission. When your team is ready to submit, any one of you pushes a tag named `submission` — it counts for the whole team, so agree on the commit first:
+
+```bash
+# Make sure you've pulled before or switch branches
+git push                            # your commits
+git tag submission
+git push origin submission          # this triggers the autograder
+```
+
+The autograder builds your package, checks your MPC and drives it around Levine in the simulator, then posts your score as a **Release** on your repo (check the Releases page or the commit's status check a few minutes after you tag). To resubmit, move the tag to a new commit:
+
+```bash
+git tag -f submission
+git push --force origin submission
+```
+
+The best scored `submission` push is counted as your team's final submission, and its grade is every member's grade for the lab. The leaderboard keeps your team's fastest clean lap.
+
+**The autograder finds your work by name.** Package `mpc`, launch file `levine_launch.py` (or, without it, an executable it can start with `ros2 run mpc <executable>`, the skeleton's `mpc_node.py`), taking its pose from `/ego_racecar/odom` and publishing `AckermannDriveStamped` on `/drive`. Otherwise, the autograder will not be able to grade your work and your submission may get the wrong grade.
+
+## IX: Grading Rubric
+- Compilation: **10** Points (autograded)
+- Correct objectives and constraints: **50** Points (autograded without the simulator, 10 per check: your node is given the pose of a car standing to the left and to the right of your path, turned to the left and to the right, half way round a corner, standing still, and turned 60° off its path, and must steer the right way each time, pull away no faster than its acceleration limit allows, and keep within the steering limit)
+- Working path tracker: **20** Points (autograded in simulation: three counter-clockwise laps of `levine_blocked` in a row without touching a wall; a run that ends early earns partial credit for the fraction covered; the fastest of the three laps goes to the leaderboard)
+- Videos (TA-graded from the links in `SUBMISSION.md`):
    - In sim: **10** Points
    - On Car: **10** Points
