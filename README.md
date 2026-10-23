@@ -196,58 +196,55 @@ It is very helpful to visualize, on top of the current segment of the reference 
    **WARNING:** This is very expensive to compute and render, especially on the real car, so only do it for debugging and not in your final submission.
 - the trajectory of the updated nominal sequence, to see what the car plans to do.
 
-## VIII. What the autograder runs
+## VIII. Testing your code for Autograder
 
-In the [f1tenth_gym_ros](https://github.com/f1tenth/f1tenth_gym_ros/tree/dev-jazzy) simulator your node drives the **two tracks** of the Pure Pursuit lab. Set the map and start pose in `config/sim.yaml` to run the autograder's tests. The autograder runs your code with the following parameters:
+You can test out your node in the [f1tenth_gym_ros](https://github.com/f1tenth/f1tenth_gym_ros/tree/dev-jazzy) simulator on the **two tracks** that we will use in the autograder. To do so, you can set the map in `config/sim.yaml` accordingly:
 
 | Track | `map_path` | `sx`, `sy`, `stheta` | Graded run |
 | --- | --- | --- | --- |
-| Levine | `'maps/levine_blocked'` | `-12.0`, `0.0`, `0.0` (default) | three laps in a row, counter-clockwise |
+| Levine | `'maps/levine_blocked'` | `-12.0`, `0.0`, `0.0` (the stock start pose) | three laps in a row, counter-clockwise |
 | Spielberg | `'maps/Spielberg'` | `14.59`, `3.92`, `-2.877` | one lap, in the direction of its centerline |
 
-Both maps come with a centerline, so the simulator counts your laps (`/ego_racecar/lap_count`, and `completed lap N, last lap X s` line in the bridge log). 
+Both maps come with a centerline. You can check your lap count and lap time using the `/ego_racecar/lap_count` topic and the `completed lap N, last lap X s` line in the bridge log respectively. These lap times are what we check with the autograder.
 
-**One launch file per track.** The autograder starts your code with the two launch files in `mppi/launch/`:
+**One launch file per track.** The autograder tests your code using the two launch files in the `pure_pursuit/launch/` folder:
 
 ```bash
-ros2 launch mppi levine_launch.py      # three laps of Levine (and the pose checks)
-ros2 launch mppi spielberg_launch.py   # one lap of Spielberg
+ros2 launch pure_pursuit levine_launch.py      # three laps of Levine (and the pose checks)
+ros2 launch pure_pursuit spielberg_launch.py   # one lap of Spielberg
 ```
 
-They are yours to edit: set `EXECUTABLE` to the node you wrote (`mppi_node.py` for Python, `mppi_node` for C++), put each track's tuned values in its `PARAMETERS` (or a `.yaml` config file), and start as many nodes as you like. Start your own nodes only: the autograder runs the simulator. Each file passes `track` (`levine` or `spielberg`), which the skeleton declares so your node knows which waypoints to load. Without a track's launch file the autograder falls back to `ros2 run mppi <executable> --ros-args -p track:=<track>` with no parameter file, so tuned values must then be your node's defaults. Line F of your result tells you how your code was started. For Spielberg the simulator ships a centerline and an optimised raceline, `maps/Spielberg_centerline.csv` and `maps/Spielberg_raceline.csv`: you may use either, reshape them, or make your own, with a speed profile that suits the track.
+You can edit these launch files for your specific setup; i.e: set `EXECUTABLE` to the node you wrote (`pure_pursuit_node.py` for Python, `pure_pursuit_node` for C++). For Spielberg the simulator ships a centerline and an optimised raceline, `maps/Spielberg_centerline.csv` and `maps/Spielberg_raceline.csv`: you may use either, reshape them, or make your own.
 
-**Ship your waypoints with your package.** Put your CSV files in `mppi/waypoints/`; the skeleton's `CMakeLists.txt` installs that folder, and your node finds it with `get_package_share_directory('mppi')` (Python, `ament_index_python.packages`) or `ament_index_cpp::get_package_share_directory("mppi")` (C++). A path like `/home/you/sim_ws/...` only exists on your laptop: on the autograder your node would die at start-up.
-
-The autograder then does three things:
-
-1. **Checks your MPPI without the simulator.** It plays the simulator's localisation for a car held still at a pose on the Levine loop (`/ego_racecar/odom`, the `map -> ego_racecar/base_link` transform, an empty `/scan`) and records what your node publishes on `/drive`. Five checks, one per part of the problem:
-   - standing 0.6 m left of the middle of the south hallway, the car must steer further right than from 0.6 m right of it;
-   - turned 25° left, it must steer further right than turned 25° right;
-   - half way round the south-east corner (a left turn: the loop runs counter-clockwise) it must steer further left than in the middle of the hallway;
-   - standing still (the odometry reports 0 m/s), the speed it commands must be above 0 and at most 1.5 m/s: with the acceleration clipped to its limit, the first step of the plan can only add `a_max × dt`;
-   - turned 60° left at 2 m/s, it must steer back to the right, and never command more than the car's steering limit, 0.4189 rad.
-
-   Each comparison only asks which way the steering changes, so your path may be a centerline or a racing line. MPPI samples at random, so make sure your node gives the same answer every time it sees the same pose: with too few samples or too small a $\lambda$, the first command is mostly noise.
-2. **Drives three laps in a row** of `levine_blocked`, counter-clockwise, from the stock start pose, without touching a wall. A run that ends early earns partial credit for the fraction covered; the fastest of the three laps goes to the Levine leaderboard.
-3. **Drives one lap of Spielberg** from the start pose above, without touching a wall, with partial credit the same way; the lap time goes to the Spielberg leaderboard.
+**Ship your waypoints with your package.** Put your CSV files in `pure_pursuit/waypoints/`; the skeleton's `CMakeLists.txt` installs that folder by default. To get the CSV file from your node, use  `get_package_share_directory('pure_pursuit')` (Python, `ament_index_python.packages`) or `ament_index_cpp::get_package_share_directory("pure_pursuit")` (C++) so you can fetch the installed files. A path like `/home/you/sim_ws/...` only exists on your machine, so when the autograder runs your node, it would die at start-up because the absolute path is not the same as the autograder's workspace.
 
 ## IX. Deliverables and Submission
 
-**This lab is done in teams**, the same teams as lab 7. Your team is already formed — you do not create one or invite anyone. **Every member of the team runs the same command**:
+As in previous labs, this is a team assignment.
+
+### a. Accepting the Assignment
+
+Each team member can accept the assignment by running:
 
 ```bash
 gh student accept RoboRacer-Class ese-6150 lab-8-model-predictive-path-integral
 ```
 
-Whoever runs it first creates the team's shared repository, `ese-6150-lab-8-model-predictive-path-integral-group-<n>`; everyone else gets `Repository already exists` and the same URL. All of you push to that one repository, so **pull before you push**. One submission is the whole team's submission, and every member gets the same grade.
+The team member that accepts the assignment first creats the team's shared repository, `ese-6150-lab-8-model-predictive-path-integral-group-<n>`. Make sure you coordinate pushes, branches and commits. One submission is the whole team's submission, so every member gets the same grade for the lab.
 
-- **Deliverable 1**: Commit your `mppi` package to your team's repository, waypoints included. Your committed code should run smoothly in simulation: three laps of Levine in a row and one lap of Spielberg, without touching a wall. The autograder watches both runs, and the leaderboards keep your team's fastest lap on each track.
-- **Deliverable 2**: Submit links to two videos in **`SUBMISSION.md`** (YouTube unlisted, or Google Drive shared as **"Anyone with the link can view"**): the car tracking waypoints with MPPI in Levine in the simulator, with the sampled rollouts visible in RViz, and on the real car in Levine hallway.
-- **Bonus**: The Euler and RK4 comparison of Section III.b in **`SUBMISSION.md`**.
+### b. Deliverables
 
-### Submitting
+There are two deliverables and one bonus for this lab:
 
-You can commit and push your work as often as you need, but a plain push does **not** count as a submission. When your team is ready to submit, any one of you pushes a tag named `submission` — it counts for the whole team, so agree on the commit first:
+- **Deliverable 1**: Your `mppi` package with its waypoints. Your code should successfully complete three consecutive laps of Levine and one lap of Spielberg, without touching a wall, in the simulator. The leaderboards tracks your team's fastest lap on each track.
+
+- **Deliverable 2**: Links to two videos in **`SUBMISSION.md`** (YouTube unlisted, or Google Drive shared as **"Anyone with the link can view"**): the car tracking waypoints with MPPI in Levine in the simulator, with the sampled rollouts visible in RViz, and on the real car in Levine hallway.
+
+- **Bonus**: The Euler and RK4 comparison of Section III.b in **`SUBMISSION.md`**, truncated proposal distribution, and covariance update.
+
+### c. Submitting
+
+You can commit and push your work as often as you need, as a plain push does **not** count as a submission. When your team is ready to submit, any member can push a tagged commit named `submission` which then counts as a submission for the whole team. You can do so using:
 
 ```bash
 # Make sure you've pulled before or switch branches
@@ -256,6 +253,8 @@ git tag submission
 git push origin submission          # this triggers the autograder
 ```
 
+### d. Grading
+
 The autograder builds your package, checks your MPPI and drives it around Levine and Spielberg in the simulator, then posts your score as a **Release** on your repo (check the Releases page or the commit's status check a few minutes after you tag). To resubmit, move the tag to a new commit:
 
 ```bash
@@ -263,19 +262,22 @@ git tag -f submission
 git push --force origin submission
 ```
 
-The best scored `submission` push is counted as your team's final submission, and its grade is every member's grade for the lab. The two leaderboards are independent: each keeps your team's fastest clean lap on its track, and each track has its own launch file, so one submission carries a tuning for Levine and another for Spielberg.
+The `submission` push with the best grade is counted as your team's final submission and grade. The leaderboards are independent as each track has its own launch file.
 
-**The autograder finds your work by name.** Package `mppi`, launch files `levine_launch.py` and `spielberg_launch.py` (or, without them, an executable it can start with `ros2 run mppi <executable> --ros-args -p track:=<track>`, the skeleton's `mppi_node.py`), taking its pose from `/ego_racecar/odom` and publishing `AckermannDriveStamped` on `/drive`. Otherwise, the autograder will not be able to grade your work and your submission may get the wrong grade.
+**The autograder finds your work by name.** Package `mppi`, launch files `levine_launch.py` and `spielberg_launch.py`, subcribing to the pose from `/ego_racecar/odom` and publishing `AckermannDriveStamped` on `/drive`. Otherwise, the autograder will not be able to grade your work and your submission may get the wrong grade.
 
-**Only the topics the lab needs.** Your nodes may read the simulator's localisation (`/ego_racecar/odom`, `/tf`), `/scan` and `/initialpose`, and publish on `/drive`, `/tf` and topics only your own nodes use (path, rollout and waypoint markers). The autograder watches the ROS graph while your code runs: a node that reads the lap counter or the collision flag, or publishes on a topic the simulator or the autograder listens to (`/initialpose`, which teleports the car, `/ego_racecar/odom`, the lap counter, ...) gets every line that ran your code scored 0.
+**Only the topics the lab needs.** Your nodes may read the simulator's localisation (`/ego_racecar/odom`, `/tf`), `/scan` and `/initialpose`, and publish to `/drive`. The autograder watches the ROS graph while your code runs: a node that reads the lap counter or the collision flag, or publishes on a topic the simulator or the autograder listens to (`/initialpose`, which teleports the car, `/ego_racecar/odom`, the lap counter, ...) gets a 0 grade for the whole submission.
 
 ## X: Grading Rubric
 - Compilation: **10** Points (autograded)
-- Correct dynamics, cost and update: **50** Points (autograded without the simulator, 10 per check: your node is given the pose of a car standing to the left and to the right of your path, turned to the left and to the right, half way round a corner, standing still, and turned 60° off its path, and must steer the right way each time, pull away no faster than its acceleration limit allows, and keep within the steering limit)
-- Working path tracker: **30** Points
-  - **20** Points (autograded in simulation: three counter-clockwise laps of `levine_blocked` in a row without touching a wall; a run that ends early earns partial credit for the fraction covered; the fastest of the three laps goes to the Levine leaderboard)
-  - **10** Points (autograded in simulation: one lap of `Spielberg` without touching a wall, with partial credit; the lap time goes to the Spielberg leaderboard)
+- Correct dynamics, cost and update: **50** Points (autograded without the simulator, 10 per check: your node is initialized with random poses of the car and must steer the right way while satisfying the acceleration and steering limits).
+- Path tracking: **20** Points
+  - **10** Points (autograded in simulation: three counter-clockwise laps of `levine_blocked` in a row without touching a wall; a run that ends early earns partial credit for the fraction covered; the fastest of the three laps goes to the Levine leaderboard)
+  - **20** Points (autograded in simulation: one lap of `Spielberg` without touching a wall, with partial credit; the lap time goes to the Spielberg leaderboard)
 - Videos (TA-graded from the links in `SUBMISSION.md`):
-   - In sim: **5** Points
-   - On Car: **5** Points
-- Bonus: RK4 discretization: **5** Points (TA-graded from the Euler and RK4 comparison in `SUBMISSION.md`)
+   - In sim: **10** Points
+   - On Car: **10** Points
+- Bonus (**15** Points total): 
+   - RK4 discretization: **5** Points (TA-graded from the Euler and RK4 comparison in `SUBMISSION.md`)
+   - Truncated proposal distribution: **5** Points (TA-graded from the code)
+   - Covariance Update: **5** Points (TA-graded from the code)
