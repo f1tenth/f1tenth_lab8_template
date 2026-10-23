@@ -77,11 +77,11 @@ RK4 is fourth-order accurate: halving $\Delta t$ cuts the error by about $16\tim
 
 **Bonus:** Implement RK4 as an alternative to Euler integration in your MPPI implementation and add a parameter to switch between the two. Report the difference between the two methods in `SUBMISSION.md` by rolling out the same control sequence (i.e max steering at 5 m/s for 1 s) using Euler and RK4 at your chosen $\Delta t$, and compare with Euler with a smaller $\Delta t$, and plot the three paths. Comment on the difference between the two, which one you chose, and why.
 
-## II. Recap: the MPC problem
+## III. Recap: the MPC problem
 
 Before starting the lab, make sure you understand the MPC formulation from the previous lab and the MPPI algorithm from the lecture. We'll briefly go over both here. You'll have MPPI solve the same problem as MPC: generate valid control inputs for $H$ steps ahead that control the vehicle and follow the reference trajectory as closely as possible. What changes is *how* the problem is solved.
 
-### b. Objective Function
+### a. Objective Function
 
 We'll use the same objective from the MPC lab. We want to minimize:
 1. Deviation of the vehicle from the reference trajectory. The final state deviation is weighted by $Q_f$, and other state deviations are weighted by $Q$.
@@ -96,9 +96,9 @@ Because MPPI only evaluates the cost, it does not need to be quadratic, convex o
 
 Note that you will need to handle heading error wrap-around when computing the cost. For example, if the reference heading is 179° and the vehicle heading is -179°, the heading error is 2°, not 358°. You can achieve this either by wrapping the heading error to [-180°, 180°] or by squaring the angular distance $\Delta \theta = \text{atan2}(\sin(\alpha - \beta), \cos(\alpha - \beta))$
 
-### c. Constraints
+### b. Constraints
 
-The controller needs to satisfy the same constraints as in the MPC lab. The constraints inclue:
+The controller needs to satisfy the same constraints as in the MPC lab. The constraints include:
 1. Future vehicle states must follow the vehicle's dynamic model.
    $$\dot{x_t}=f(x_t, u_t)$$
 2. Initial state in the plan for the current horizon must match current vehicle state.
@@ -109,7 +109,7 @@ The controller needs to satisfy the same constraints as in the MPC lab. The cons
 
 Because you can not enforce constraints with a solver for MPPI, we can enforce them by construction:
 
-1. **Future vehicle states must follow the vehicle dynamics model.** MPPI simualtes the vehicle dynamics to generate future states, so every rollout obeys the dynamics by construction:
+1. **Future vehicle states must follow the vehicle dynamics model.** MPPI simulates the vehicle dynamics to generate future states, so every rollout obeys the dynamics by construction:
    $$x_{k+1}=F(x_k, u_k)$$
    where $F$ is the discretized dynamics of Section II.
 2. **The initial state in the plan must match the current vehicle state.** Every rollout starts from the current vehicle state, so the first state in every rollout is the current state:
@@ -125,11 +125,11 @@ For the rest of the constraints (e.g max speed, staying on the track), we will l
 
 ## IV. The MPPI Algorithm
 
-MPPI approximate a solution to the following stochastic finite-time optimal control problem (FTOCP):
+MPPI approximates a solution to the following stochastic finite-time optimal control problem (FTOCP):
 
 $$
 \begin{aligned}
-& \underset{u_0, \ldots, u_{T-1}}{\text{minimize}}
+& \underset{u_0, \ldots, u_{H-1}}{\text{minimize}}
 & & \mathbb{E}\left[J\left(x_{0}, u_0, \ldots, u_{H-1}\right)\right] \\
 & \text{subject to}
 & & x_{k+1}=F\left(x_k, u_k\right), \quad k=0, \ldots, H-1 \\
@@ -142,22 +142,26 @@ The expectation is approximated via Monte Carlo sampling. MPPI *samples* many co
 
 Each timestep, starting from the current state $x_{\text{curr}}$, the MPPI algorithm performs the following steps:
 
-1. **Sample** $T$ control sequences of length $H$ from the proposal distribution $\mathbb{Q}_{U,\Sigma}$, where $T$ is the number of samples, $H$ is the horizon, $U$ is the mean of the propsal distribution, and $\Sigma$ is the covariance of the proposal distribution. See section II.c for which propsal distribution to use.
-3. **Simulate** each control sequence using the discretized dynamics $F$ to generate a trajectory of states.
-4. **Score** each trajectory using the cost function $J$.
-5. **Weight** each trajectory from the cost of the trajectory and the temperature parameter $\lambda$ using importance sampling. The weight of each trajectory is given by:
+1. **Sample** $T$ control sequences of length $H$ from the proposal distribution $\mathbb{Q}_{U,\Sigma}$, where $T$ is the number of samples, $H$ is the horizon, $U$ is the mean of the proposal distribution, and $\Sigma$ is the covariance of the proposal distribution. Use a Gaussian with mean $U$ and covariance $\Sigma$, clipped to the input bounds (see Section III.b).
+2. **Simulate** each control sequence using the discretized dynamics $F$ to generate a trajectory of states.
+3. **Score** each trajectory using the cost function $J$. Since the weights vary per timestep, we score each timestep $t$ of trajectory $k$ with its cost-to-go $S_t^k$: the cost of trajectory $k$ from timestep $t$ to the end of the horizon.
+4. **Weight** each trajectory at each timestep from its cost-to-go and the temperature parameter $\lambda$ using importance sampling. So that $\lambda$ does not depend on the scale of your cost, first normalize the costs-to-go of each timestep to $[0, 1]$:
 $$
-w^k = \frac{\exp\left(-\frac{1}{\lambda} J^k\right)}{\sum_{j=1}^{T} \exp\left(-\frac{1}{\lambda} J^j\right)}
+\tilde{S}_t^k = \frac{S_t^k - \min_j S_t^j}{\max_j S_t^j - \min_j S_t^j}
 $$
-6. **Update** the mean of the proposal distribution $U$ using the weighted average of the sampled control sequences:
+   The weight of trajectory $k$ at timestep $t$ is then given by:
 $$
-U = \sum_{k=1}^{T} w^k u^k
+w_t^k = \frac{\exp\left(-\frac{1}{\lambda} \tilde{S}_t^k\right)}{\sum_{j=1}^{T} \exp\left(-\frac{1}{\lambda} \tilde{S}_t^j\right)}
+$$
+5. **Update** the mean of the proposal distribution $U$ using the weighted average of the sampled control sequences, at each timestep:
+$$
+U_t = \sum_{k=1}^{T} w_t^k u_t^k
 $$
    **Bonus** You can also update the covariance of the proposal distribution $\Sigma$ using the weighted covariance of the sampled control sequences:
 $$
-\Sigma = \sum_{k=1}^{T} w^k (u^k - U)(u^k - U)^\top
+\Sigma_t = \sum_{k=1}^{T} w_t^k (u_t^k - U_t)(u_t^k - U_t)^\top
 $$
-7. **Apply** $u_0$ to the car, then repeat the process at the next timestep.
+6. **Apply** $U_0$ to the car, then shift $U$ one timestep forward to warm start the next iteration, and repeat the process at the next timestep.
 
 ### Parameters to tune
 
@@ -165,7 +169,7 @@ $$
 - **$H$, the horizon.** The number of timesteps to look ahead.
 - **$\Delta t$, the time step.** The time between each control update.
 - **$\Sigma$** The covariance of the proposal distribution. It sets how much exploration is done in the control space. A larger $\Sigma$ means more exploration, but also more noise in the control sequence.
-- **$\lambda$, the temperature.** It sets how greedy the average is. As $\lambda \to 0$ the update takes only the best sample and the control gets noisy; as $\lambda$ increases, the weighting becomes more uniform. A useful check is the effective sample size, $1 / \sum_k (w^k)^2$: if it is close to $1$, $\lambda$ is too small; if it is close to $T$, it is too large.
+- **$\lambda$, the temperature.** It sets how greedy the average is. As $\lambda \to 0$ the update takes only the best sample and the control gets noisy; as $\lambda$ increases, the weighting becomes more uniform. A useful check is the effective sample size, $1 / \sum_k (w_t^k)^2$: if it is close to $1$, $\lambda$ is too small; if it is close to $T$, it is too large.
 - **$Q$, $Q_f$, $R$, $R_d$, the cost weights,** as in the MPC lab.
 
 ### Vectorize the rollouts
@@ -182,12 +186,12 @@ You can reuse the waypoints you made in the MPC lab as your reference trajectory
 
 The skeleton is in `mppi/scripts/mppi_node.py`. You can find missing parts in the code by searching for `TODO` tags. Your tasks are:
 
-1. **Dynamics.** Fill in `dynamics()` with the kinematic model $f(x, u)$, and `step_euler()` with the Euler step $F$, both vectorized over the $K$ samples. The bonus is `step_rk4()`.
-2. **Rollouts and cost.** Fill in `rollout()`, which simulates all $T$ sampled sequences from the current state, and `cost()`, which scores them with the objective of Section II.
-3. **MPPI update.** Fill in `mppi_step()` with steps 1 to 7 of Section IV.
-4. **Callback.** Fill in `odom_callback()`: read the vehicle state, compute the reference for the next $T$ steps, run `mppi_step()` and publish the first input as an `AckermannDriveStamped`, with speed $v + a_0\,dt$ and steering $\delta_0$.
+1. **Dynamics.** Fill in `dynamics()` with the kinematic model $f(x, u)$, and `step_euler()` with the Euler step $F$, both for a single state (`rollout()` vectorizes them over the $T$ samples). The bonus is `step_rk4()`.
+2. **Rollouts and cost.** Fill in `simulate()`, which simulates one control sequence from the current state, `rollout()`, which simulates all $T$ sampled sequences in parallel, and `cost()`, which scores each timestep of a trajectory with the objective of Section III.a.
+3. **MPPI update.** Fill in `mppi_step()` with steps 1 to 5 of Section IV.
+4. **Callback.** Create your subscribers and publishers and load your waypoints in `__init__()`, then fill in `odom_callback()`: read the vehicle state, compute the reference for the next $H$ steps, warm start $U$, run `mppi_step()` and publish the first input as an `AckermannDriveStamped`, with speed $v + a_0\,dt$ and steering $\delta_0$.
 
-**Dependencies.** The Python skeleton only needs JAX; there is no solver to install. There is also a C++ scaffold in `mppi/src/mppi_node.cpp` that mirrors the Python structure and uses only Eigen, so you can implement MPPI in C++ if you prefer. The autograder runs your code with either language.
+**Dependencies.** The skeleton only needs JAX (`pip install jax`); there is no solver to install.
 
 ## VII. Visualization
 
@@ -207,16 +211,16 @@ You can test out your node in the [f1tenth_gym_ros](https://github.com/f1tenth/f
 
 Both maps come with a centerline. You can check your lap count and lap time using the `/ego_racecar/lap_count` topic and the `completed lap N, last lap X s` line in the bridge log respectively. These lap times are what we check with the autograder.
 
-**One launch file per track.** The autograder tests your code using the two launch files in the `pure_pursuit/launch/` folder:
+**One launch file per track.** The autograder tests your code using the two launch files in the `mppi/launch/` folder:
 
 ```bash
-ros2 launch pure_pursuit levine_launch.py      # three laps of Levine (and the pose checks)
-ros2 launch pure_pursuit spielberg_launch.py   # one lap of Spielberg
+ros2 launch mppi levine_launch.py      # three laps of Levine (and the pose checks)
+ros2 launch mppi spielberg_launch.py   # one lap of Spielberg
 ```
 
-You can edit these launch files for your specific setup; i.e: set `EXECUTABLE` to the node you wrote (`pure_pursuit_node.py` for Python, `pure_pursuit_node` for C++). For Spielberg the simulator ships a centerline and an optimised raceline, `maps/Spielberg_centerline.csv` and `maps/Spielberg_raceline.csv`: you may use either, reshape them, or make your own.
+You can edit these launch files for your specific setup; i.e: set `EXECUTABLE` to the node you wrote (`mppi_node.py` by default). Each launch file passes `track` (`levine` or `spielberg`) to your node so it knows which waypoints to load. For Spielberg the simulator ships a centerline and an optimised raceline, `maps/Spielberg_centerline.csv` and `maps/Spielberg_raceline.csv`: you may use either, reshape them, or make your own.
 
-**Ship your waypoints with your package.** Put your CSV files in `pure_pursuit/waypoints/`; the skeleton's `CMakeLists.txt` installs that folder by default. To get the CSV file from your node, use  `get_package_share_directory('pure_pursuit')` (Python, `ament_index_python.packages`) or `ament_index_cpp::get_package_share_directory("pure_pursuit")` (C++) so you can fetch the installed files. A path like `/home/you/sim_ws/...` only exists on your machine, so when the autograder runs your node, it would die at start-up because the absolute path is not the same as the autograder's workspace.
+**Ship your waypoints with your package.** Put your CSV files in `mppi/waypoints/`; the skeleton's `CMakeLists.txt` installs that folder by default. To get the CSV file from your node, use `get_package_share_directory('mppi')` (from `ament_index_python.packages`) so you can fetch the installed files. A path like `/home/you/sim_ws/...` only exists on your machine, so when the autograder runs your node, it would die at start-up because the absolute path is not the same as the autograder's workspace.
 
 ## IX. Deliverables and Submission
 
@@ -230,17 +234,17 @@ Each team member can accept the assignment by running:
 gh student accept RoboRacer-Class ese-6150 lab-8-model-predictive-path-integral
 ```
 
-The team member that accepts the assignment first creats the team's shared repository, `ese-6150-lab-8-model-predictive-path-integral-group-<n>`. Make sure you coordinate pushes, branches and commits. One submission is the whole team's submission, so every member gets the same grade for the lab.
+The team member that accepts the assignment first creates the team's shared repository, `ese-6150-lab-8-model-predictive-path-integral-group-<n>`. Make sure you coordinate pushes, branches and commits. One submission is the whole team's submission, so every member gets the same grade for the lab.
 
 ### b. Deliverables
 
 There are two deliverables and one bonus for this lab:
 
-- **Deliverable 1**: Your `mppi` package with its waypoints. Your code should successfully complete three consecutive laps of Levine and one lap of Spielberg, without touching a wall, in the simulator. The leaderboards tracks your team's fastest lap on each track.
+- **Deliverable 1**: Your `mppi` package with its waypoints. Your code should successfully complete three consecutive laps of Levine and one lap of Spielberg, without touching a wall, in the simulator. The leaderboards track your team's fastest lap on each track.
 
 - **Deliverable 2**: Links to two videos in **`SUBMISSION.md`** (YouTube unlisted, or Google Drive shared as **"Anyone with the link can view"**): the car tracking waypoints with MPPI in Levine in the simulator, with the sampled rollouts visible in RViz, and on the real car in Levine hallway.
 
-- **Bonus**: The Euler and RK4 comparison of Section III.b in **`SUBMISSION.md`**, truncated proposal distribution, and covariance update.
+- **Bonus**: The Euler and RK4 comparison of Section II.b in **`SUBMISSION.md`**, truncated proposal distribution, and covariance update.
 
 ### c. Submitting
 
@@ -264,16 +268,16 @@ git push --force origin submission
 
 The `submission` push with the best grade is counted as your team's final submission and grade. The leaderboards are independent as each track has its own launch file.
 
-**The autograder finds your work by name.** Package `mppi`, launch files `levine_launch.py` and `spielberg_launch.py`, subcribing to the pose from `/ego_racecar/odom` and publishing `AckermannDriveStamped` on `/drive`. Otherwise, the autograder will not be able to grade your work and your submission may get the wrong grade.
+**The autograder finds your work by name.** Package `mppi`, launch files `levine_launch.py` and `spielberg_launch.py`, subscribing to the pose from `/ego_racecar/odom` and publishing `AckermannDriveStamped` on `/drive`. Otherwise, the autograder will not be able to grade your work and your submission may get the wrong grade.
 
-**Only the topics the lab needs.** Your nodes may read the simulator's localisation (`/ego_racecar/odom`, `/tf`), `/scan` and `/initialpose`, and publish to `/drive`. The autograder watches the ROS graph while your code runs: a node that reads the lap counter or the collision flag, or publishes on a topic the simulator or the autograder listens to (`/initialpose`, which teleports the car, `/ego_racecar/odom`, the lap counter, ...) gets a 0 grade for the whole submission.
+**Only the topics the lab needs.** Your nodes may read the simulator's localisation (`/ego_racecar/odom`, `/tf`), `/scan` and `/initialpose`, and publish to `/drive` and to topics only your own nodes use (e.g. your visualization markers). The autograder watches the ROS graph while your code runs: a node that reads the lap counter or the collision flag, or publishes on a topic the simulator or the autograder listens to (`/initialpose`, which teleports the car, `/ego_racecar/odom`, the lap counter, ...) gets a 0 grade for the whole submission.
 
 ## X: Grading Rubric
 - Compilation: **10** Points (autograded)
 - Correct dynamics, cost and update: **50** Points (autograded without the simulator, 10 per check: your node is initialized with random poses of the car and must steer the right way while satisfying the acceleration and steering limits).
 - Path tracking: **20** Points
   - **10** Points (autograded in simulation: three counter-clockwise laps of `levine_blocked` in a row without touching a wall; a run that ends early earns partial credit for the fraction covered; the fastest of the three laps goes to the Levine leaderboard)
-  - **20** Points (autograded in simulation: one lap of `Spielberg` without touching a wall, with partial credit; the lap time goes to the Spielberg leaderboard)
+  - **10** Points (autograded in simulation: one lap of `Spielberg` without touching a wall, with partial credit; the lap time goes to the Spielberg leaderboard)
 - Videos (TA-graded from the links in `SUBMISSION.md`):
    - In sim: **10** Points
    - On Car: **10** Points
